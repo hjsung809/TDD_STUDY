@@ -1,4 +1,4 @@
-package chap14;
+package chap16;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -78,4 +78,46 @@ public class MoneyTest {
 	public void testIdentityRate() {
 		assertEquals(1, new Bank().rate("USD", "USD"));
 	}
+	
+	@Test
+	public void testMixedAddition() {
+		Expression fiveBucks = Money.dollar(5);
+		Expression tenFrancs = Money.franc(10);
+		Bank bank = new Bank();
+		bank.addRate("CHF", "USD", 2);
+		Money result = bank.reduce(fiveBucks.plus(tenFrancs), "USD");
+		assertEquals(Money.dollar(10), result);
+	}
+	
+	@Test
+	public void testSumPlusMoney() {
+		Expression fiveBucks = Money.dollar(5);
+		Expression tenFrancs = Money.franc(10);
+		Bank bank = new Bank();
+		bank.addRate("CHF", "USD", 2);
+		
+		// new Sum은 더 명시적으로 의도를 드러내는 방법.
+		Expression sum = new Sum(fiveBucks, tenFrancs).plus(fiveBucks);
+		Money result = bank.reduce(sum, "USD");
+		assertEquals(Money.dollar(15), result);
+	}
+	
+	@Test
+	public void testSumTimes() {
+		// Sum.times()를 작동하게 만들기 위해 만든 테스트
+		Expression fiveBucks= Money.dollar(5);
+		Expression tenFrancs= Money.franc(10);
+		Bank bank = new Bank();
+		bank.addRate("CHF", "USD", 2);
+		Expression sum= new Sum(fiveBucks, tenFrancs).times(2);
+		Money result = bank.reduce(sum, "USD");
+		assertEquals(Money.dollar(20), result);
+	}
+	
+	// 같은 통화끼리 더하면 Money가 되도록 하고싶은 테스트. 책에서는 다루지 않음.
+//	@Test
+//	public void testPlusSameCurrencyReturnsMoney() {
+//		Expression sum = Money.dollar(1).plus(Money.dollar(1));
+//		assertTrue(sum instanceof Money);
+//	}
 }
